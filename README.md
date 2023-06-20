@@ -1,1 +1,1 @@
-Pegged Stabled coin to USD using yeild-bearing assets.
+Pegged stablecoin to USD using yeild-bearing assets.
