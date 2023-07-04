@@ -7,7 +7,7 @@ import "{ERC20Burnable.sol, ERC20.sol}" from "@openzeppelin/contracts/token/ERC2
 import "{Ownable.sol}" from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Stability is ERC20Burnable, Ownable {
-    constructor() ERC20("Stability", "USDS"){}
+    constructor() ERC20("Stability", "sUSD"){}
 
     function mint(address to, uint256 amount) public onlyOwner {
         _mint(to, amount);
