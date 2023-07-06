@@ -17,6 +17,8 @@ pragma solidity ^0.8.18;
 contract sUSDEngine {
     //////// ERRORS ////////
     error MustBeMoreThanZero();
+    error CollateralNotSupported();
+    error collateralAddressesMustBeSameLengthAsPriceFeedAddresses();
 
     //////// STATE VARIABLES ////////
     mapping(address token => address priceFeed) public collateralAllowed; // mapping of collateral to price feed
@@ -30,15 +32,22 @@ contract sUSDEngine {
     }
 
     modifier collateralAllowed(address _collateral) {
-        require(
-            collateralAllowed[_collateral] != address(0),
-            "Collateral not allowed"
-        );
+        if (collateralAllowed[_collateral] == address(0)) {
+            revert CollateralNotSupported();
+        }
         _;
     }
 
     ///////// CONSTRUCTOR /////////
-    constructor() {}
+    constructor(
+        address[] memory tokenAddresses,
+        address[] memory priceFeedAddresses,
+        address stabilityAddress
+    ) {
+        if (tokenAddresses.length != priceFeedAddresses.length) {
+            revert collateralAddressesMustBeSameLengthAsPriceFeedAddresses();
+        }
+    }
 
     ///////// Functions /////////
     function depositCollateralAndMint() external {}
