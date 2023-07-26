@@ -47,6 +47,10 @@ contract sUSDEngine {
         if (tokenAddresses.length != priceFeedAddresses.length) {
             revert collateralAddressesMustBeSameLengthAsPriceFeedAddresses();
         }
+
+        for (uint256 i = 0; i < tokenAddresses.length; i++) {
+            collateralAllowed[tokenAddresses[i]] = priceFeedAddresses[i];
+        }
     }
 
     ///////// Functions /////////
