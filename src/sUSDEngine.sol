@@ -3,6 +3,8 @@
 pragma solidity ^0.8.18;
 
 import {OracleLib, AggregatorV3Interface} from "";
+import {StabilityStableCoin} from "./Stability.sol";
+import {ReentrancyGuard} from "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 /**
  * @title sUSDEngine
@@ -16,14 +18,18 @@ import {OracleLib, AggregatorV3Interface} from "";
  * @notice this handles all the logic for the Stability Stablecoin Ecosystem.
  */
 
-contract sUSDEngine {
+contract sUSDEngine is ReentrancyGuard {
     //////// ERRORS ////////
     error MustsBeMoreThanZero();
     error CollateralNotSupported();
-    error collateralAddressesMustBeSameLengthAsPriceFeedAddresses();
+    error CollateralAddressesMustBeSameLengthAsPriceFeedAddresses();
 
     //////// STATE VARIABLES ////////
-    mapping(address token => address priceFeed) public collateralAllowed; // mapping of collateral to price feed
+    mapping(address token => address priceFeed) public allowedCollat; // mapping of collateral to price feed
+    mapping(address user => mapping(address token => uint256))
+        public collateralBalances; // mapping of user to collateral to balance
+
+    StabilityStableCoin private immutable stability; // the stability token
 
     ///////// MODIFIERS /////////
     modifier moreThanZero(uint256 _amount) {
@@ -34,7 +40,7 @@ contract sUSDEngine {
     }
 
     modifier collateralAllowed(address _collateral) {
-        if (collateralAllowed[_collateral] == address(0)) {
+        if (allowedCollat[_collateral] == address(0)) {
             revert CollateralNotSupported();
         }
         _;
@@ -47,12 +53,13 @@ contract sUSDEngine {
         address stabilityAddress
     ) {
         if (tokenAddresses.length != priceFeedAddresses.length) {
-            revert collateralAddressesMustBeSameLengthAsPriceFeedAddresses();
+            revert CollateralAddressesMustBeSameLengthAsPriceFeedAddresses();
         }
 
         for (uint256 i = 0; i < tokenAddresses.length; i++) {
-            collateralAllowed[tokenAddresses[i]] = priceFeedAddresses[i];
+            allowedCollat[tokenAddresses[i]] = priceFeedAddresses[i];
         }
+        stability = StabilityStableCoin(stabilityAddress);
     }
 
     ///////// Functions /////////
@@ -65,7 +72,12 @@ contract sUSDEngine {
     function deposit(
         address _collateral,
         uint256 _amount
-    ) external moreThanZero(_amount) {}
+    )
+        external
+        moreThanZero(_amount)
+        collateralAllowed(_collateral)
+        nonReentrant
+    {}
 
     function redeemCollateral() external {}
 
