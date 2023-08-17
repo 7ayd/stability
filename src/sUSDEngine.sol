@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.18;
 
+import {OracleLib, AggregatorV3Interface} from "";
+
 /**
  * @title sUSDEngine
  * @author this.7ayd
@@ -69,9 +71,9 @@ contract sUSDEngine {
 
     function redeemCollateralForStable() external {}
 
-    function mintsUDC() external {}
+    function mintSUDC() external {}
 
-    function burnsUSD() external {}
+    function burnSUSD() external {}
 
     function liquidate() external {}
 
