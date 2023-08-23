@@ -13,17 +13,14 @@ contract Stability is ERC20Burnable, Ownable {
 
     constructor() ERC20("Stability", "sUSD") {}
 
-    function mint(
-        address _to,
-        uint256 _amount
-    ) external onlyOwner returns (bool) {
+    function mint(address _to, uint256 _amount) external onlyOwner returns (bool) {
         if (_to == address(0)) {
             revert ZeroAddress();
         }
         if (_amount <= 0) {
             revert MustBeMoreThanZero();
         }
-        _mint(_to, _amount);
+        _mint(_to, _amount); // using the mint function from ERC20 but not overriding it
         return true;
     }
 
