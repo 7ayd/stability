@@ -15,7 +15,11 @@ contract USDEngineTest is Test {
     USDEngine usdEngine;
     HelperConfig config;
     address ethUSDPriceFeed;
+    address btcUSDPriceFeed;
+    address linkUSDPriceFeed;
+    address btc;
     address weth;
+    address link;
 
     address public USER = makeAddr("user");
     uint256 public constant COLLATERAL = 10 ether;
@@ -26,6 +30,18 @@ contract USDEngineTest is Test {
         (stability, usdEngine, config) = deployer.run();
         (ethUSDPriceFeed,,, weth,,,) = config.activeNetworkConfig();
         ERC20Mock(weth).mint(address(USER), STARTING_BALANCE);
+    }
+
+    address[] public collateralTokens;
+    address[] public priceFeeds;
+
+    function testRevertsIfTokenLengthDoesntMatchPriceFeeds() public {
+        tokenAddresses.push(weth);
+        priceFeeds.push(ethUSDPriceFeed);
+        priceFeeds.push(ethUSDPriceFeed);
+
+        vm.expectRevert(usdEngine.MustBeSameLength.selector);
+        new USDEngine(tokenAddresses, priceFeeds, address(stability));
     }
 
     function testGetUSDValue() public {
